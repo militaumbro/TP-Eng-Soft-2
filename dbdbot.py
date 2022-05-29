@@ -32,6 +32,61 @@ server = client.get_guild(id = 302440660680704001)
 
 roles = ("Iniciante 10 - 200","Aprendiz 200 - 500","Veterano 500 - 1000","Old School 1000 - 3000","Pretty Good Job 3000 - 5000","No Life 5000+")
 
+#lista de imagens para range de ranks de um jogador
+rank_image_survivor_list = [None]
+rank_image_killer_list = [None]
+
+#Cria uma lista com os links para cada range de ranking que o usuário pode ter.
+#Cria para sobrevivente e assassino.
+def rankImageLinks():
+
+    # Optamos por "Duplicar" o código para as duas listas, pois como a operação é feita apenas 2 vezes,
+    # seria uma complicação desnecessária para um problema simples. Principalmente quando os intervalos
+    # não são regulares. 
+
+    rank_image_killer_list[0:3] = (3 - 0) *     ['https://i.imgur.com/gOAR70p.png']
+    rank_image_killer_list[3:6] = (6 - 3) *     ['https://i.imgur.com/sLtMjaa.png']
+    rank_image_killer_list[6:10] = (10 - 6) *   ['https://i.imgur.com/pc6NL6O.png']
+    rank_image_killer_list[10:14] = (14 - 10) * ['https://i.imgur.com/8qZCPbz.png']
+    rank_image_killer_list[14:18] = (18 - 14) * ['https://i.imgur.com/1hEODNS.png']
+    rank_image_killer_list[18:22] = (22 - 18) * ['https://i.imgur.com/Xf0WdJM.png']
+    rank_image_killer_list[22:26] = (26 - 22) * ['https://i.imgur.com/qd0Bgxt.png']
+    rank_image_killer_list[26:30] = (5) *       ['https://i.imgur.com/O9cDxEE.png']
+    rank_image_killer_list[30:35] = (5) *       ['https://i.imgur.com/63AN9zr.png']
+    rank_image_killer_list[35:40] = (5) *       ['https://i.imgur.com/Bl74O5o.png']
+    rank_image_killer_list[40:45] = (5) *       ['https://i.imgur.com/sX2GkML.png']
+    rank_image_killer_list[45:50] = (5) *       ['https://i.imgur.com/cWTV0YM.png']
+    rank_image_killer_list[50:55] = (5) *       ['https://i.imgur.com/IRrs3Ob.png']
+    rank_image_killer_list[55:60] = (5) *       ['https://i.imgur.com/lIQAuXF.png']
+    rank_image_killer_list[60:65] = (5) *       ['https://i.imgur.com/5mLs5sJ.png']
+    rank_image_killer_list[65:70] = (5) *       ['https://i.imgur.com/N1l7Vk0.png']
+    rank_image_killer_list[70:75] = (5) *       ['https://i.imgur.com/yvhexQ5.png']
+    rank_image_killer_list[75:80] = (5) *       ['https://i.imgur.com/FNTfn0c.png']
+    rank_image_killer_list[80:85] = (5) *       ['https://i.imgur.com/NRDikmz.png']
+    rank_image_killer_list[85]    =             ['https://i.imgur.com/SrYQhJb.png']
+
+    rank_image_survivor_list[0:3] = (3 - 0) * ['https://i.imgur.com/3vH3UTW.png']
+    rank_image_survivor_list[3:6] = (6 - 3) * ['https://i.imgur.com/1MalZLY.png']
+    rank_image_survivor_list[6:10] = (10 - 6) *   ['https://i.imgur.com/ZrrmPsT.png']
+    rank_image_survivor_list[10:14] = (14 - 10) * ['https://i.imgur.com/AyA1phE.png']
+    rank_image_survivor_list[14:18] = (18 - 14) * ['https://i.imgur.com/rY9tKbw.png']
+    rank_image_survivor_list[18:22] = (22 - 18) * ['https://i.imgur.com/wPQ5eGs.png']
+    rank_image_survivor_list[22:26] = (26 - 22) * ['https://i.imgur.com/5kmyXe5.png']
+    rank_image_survivor_list[26:30] = (5) *       ['https://i.imgur.com/xUFPcF6.png']
+    rank_image_survivor_list[30:35] = (5) *       ['https://i.imgur.com/WCAdwuU.png']
+    rank_image_survivor_list[35:40] = (5) *       ['https://i.imgur.com/YqgHqFg.png']
+    rank_image_survivor_list[40:45] = (5) *       ['https://i.imgur.com/47lgGVt.png']
+    rank_image_survivor_list[45:50] = (5) *       ['https://i.imgur.com/UBwa4Ga.png']
+    rank_image_survivor_list[50:55] = (5) *       ['https://i.imgur.com/PfGO7vO.png']
+    rank_image_survivor_list[55:60] = (5) *       ['https://i.imgur.com/2QGWh0J.png']
+    rank_image_survivor_list[60:65] = (5) *       ['https://i.imgur.com/st3nsG1.png']
+    rank_image_survivor_list[65:70] = (5) *       ['https://i.imgur.com/JfGvDer.png']
+    rank_image_survivor_list[70:75] = (5) *       ['https://i.imgur.com/aQo9pSU.png']
+    rank_image_survivor_list[75:80] = (5) *       ['https://i.imgur.com/rqoaqWq.png']
+    rank_image_survivor_list[80:85] = (5) *       ['https://i.imgur.com/2jV9Soo.png']
+    rank_image_survivor_list[85]    =       ['https://i.imgur.com/hsCEyni.png']
+
+rankImageLinks()
 """ @client.command()
 async def help(ctx, args=None):
     help_embed = discord.Embed(title="Nea Bot Help!")
@@ -70,57 +125,11 @@ def get_parameter(parameter):
 
 #define imagens para cada rank de Killer
 def get_rank_image_killer(i):
-    if i in range(0,3): return "https://i.imgur.com/gOAR70p.png"
-    elif i in range(3,6): return "https://i.imgur.com/sLtMjaa.png"
-
-    elif i in range(6,10): return "https://i.imgur.com/pc6NL6O.png"
-    elif i in range(10,14): return "https://i.imgur.com/8qZCPbz.png"
-    elif i in range(14,18): return "https://i.imgur.com/1hEODNS.png"
-    elif i in range(18,22): return "https://i.imgur.com/Xf0WdJM.png"
-    elif i in range(22,26): return "https://i.imgur.com/qd0Bgxt.png"
-    elif i in range(26,30): return "https://i.imgur.com/O9cDxEE.png"
-
-    elif i in range(30,35): return "https://i.imgur.com/63AN9zr.png"
-    elif i in range(35,40): return "https://i.imgur.com/Bl74O5o.png"
-    elif i in range(40,45): return "https://i.imgur.com/sX2GkML.png"
-    elif i in range(45,50): return "https://i.imgur.com/cWTV0YM.png"
-    elif i in range(50,55): return "https://i.imgur.com/IRrs3Ob.png"
-    elif i in range(55,60): return "https://i.imgur.com/lIQAuXF.png"
-    elif i in range(60,65): return "https://i.imgur.com/5mLs5sJ.png"
-    elif i in range(65,70): return "https://i.imgur.com/N1l7Vk0.png"
-    elif i in range(70,75): return "https://i.imgur.com/yvhexQ5.png"
-    elif i in range(75,80): return "https://i.imgur.com/FNTfn0c.png"
-    elif i in range(80,85): return "https://i.imgur.com/NRDikmz.png"
-
-    elif i == 85: return "https://i.imgur.com/SrYQhJb.png"
-    return "https://i.imgur.com/gOAR70p.png"
+    return rank_image_killer_list[i]
 
 #define imagens para cada rank de survivor
 def get_rank_image_survivor(i):
-    if i in range(0,3): return "https://i.imgur.com/3vH3UTW.png"
-    elif i in range(3,6): return "https://i.imgur.com/1MalZLY.png"
-
-    elif i in range(6,10): return "https://i.imgur.com/ZrrmPsT.png"
-    elif i in range(10,14): return "https://i.imgur.com/AyA1phE.png"
-    elif i in range(14,18): return "https://i.imgur.com/rY9tKbw.png"
-    elif i in range(18,22): return "https://i.imgur.com/wPQ5eGs.png"
-    elif i in range(22,26): return "https://i.imgur.com/5kmyXe5.png"
-    elif i in range(26,30): return "https://i.imgur.com/xUFPcF6.png"
-
-    elif i in range(30,35): return "https://i.imgur.com/WCAdwuU.png"
-    elif i in range(35,40): return "https://i.imgur.com/YqgHqFg.png"
-    elif i in range(40,45): return "https://i.imgur.com/47lgGVt.png"
-    elif i in range(45,50): return "https://i.imgur.com/UBwa4Ga.png"
-    elif i in range(50,55): return "https://i.imgur.com/PfGO7vO.png"
-    elif i in range(55,60): return "https://i.imgur.com/2QGWh0J.png"
-    elif i in range(60,65): return "https://i.imgur.com/st3nsG1.png"
-    elif i in range(65,70): return "https://i.imgur.com/JfGvDer.png"
-    elif i in range(70,75): return "https://i.imgur.com/aQo9pSU.png"
-    elif i in range(75,80): return "https://i.imgur.com/rqoaqWq.png"
-    elif i in range(80,85): return "https://i.imgur.com/2jV9Soo.png"
-
-    elif i == 85: return "https://i.imgur.com/hsCEyni.png"
-    return "https://i.imgur.com/3vH3UTW.png"
+    return rank_image_survivor_list[i]
 
 
 @client.command(name='assassino', pass_context = True, description="Mostra stats de assassino")
@@ -313,8 +322,10 @@ async def geral(context, arg = None):
         response = requests.get(str(link) + xml +str(r_int), headers={'Cache-Control': 'no-cache'})
         root2 = ET.fromstring(response.text)
         try:
+            #achei perfil da steam dele
             for games in root2.findall('games'):
                 for game in games.findall('game'):
+                    #procura dbd nos jogos do perfil dele
                     if(game.find('appID').text.find('381210') > -1):
                         #encontrei dbd
                         tempo = game.find('hoursOnRecord').text.replace(',','.')
@@ -323,6 +334,7 @@ async def geral(context, arg = None):
             tempo = 0
             await context.message.channel.send(context.message.author.mention +", as horas deste perfil da Steam estão privadas.")
 
+        #achei o DBD e agora pego stats do usuário com esta chamada baseado no steam ID dele
         response = requests.get("http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v1/?appid=381210&key=9CB3CFA671EB23758C136E8B5BC6BEA2&steamid=" + str(steamid))
         if response.status_code == 200:
             data = json.loads(response.content)
@@ -430,7 +442,7 @@ async def registro(context, args = None):
         print(db_entry_values)
         Cursor.execute("REPLACE INTO registro VALUES (?,?,?,?)", db_entry_values)
         conn.commit()
-    except :
+    except:
         await context.message.author.send("Ocorreu um erro inesperado na minha conexão com o Sistema de Registro, por favor tente novamente mais tarde.")
         raise 
 
