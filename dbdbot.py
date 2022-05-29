@@ -195,6 +195,34 @@ async def register_user(steamid,discordid,code,link,context):
         await context.message.channel.send( context.message.author.mention + ", nenhum código foi encontrado em seu Resumo do seu perfil da steam, coloque o código em seu resumo e digite novamente o comando `-verificar`")
         return
 
+async def get_dbd_stats(response, context, steam_name, tempo, avatar):
+    data = json.loads(response.content)
+    try:
+        perfect_games_killer = data["playerstats"]["stats"].get("DBD_SlasherMaxScoreByCategory", 0)
+        if(perfect_games_killer != 0):
+            perfect_games_killer = int(perfect_games_killer['value'])
+            perfect_games_killer = str('{0:,}'.format(perfect_games_killer)).replace(',','.')
+    except:
+        await context.message.channel.send("Erro na coleta dos dados (tem certeza que este perfil ja jogou DBD? 🤔)")
+    
+    perfect_games_survivor = data["playerstats"]["stats"].get("DBD_CamperMaxScoreByCategory", 0)
+    if(perfect_games_survivor != 0):
+        perfect_games_survivor = int(perfect_games_survivor['value'])
+        perfect_games_survivor = str('{0:,}'.format(perfect_games_survivor)).replace(',','.')
+
+    bloodpoints =  data["playerstats"]["stats"].get("DBD_BloodwebPoints", 0)
+    if(bloodpoints != 0):
+        bloodpoints = int(bloodpoints['value'])
+        bloodpoints = str('{0:,}'.format(bloodpoints)).replace(',','.')
+
+    embed=discord.Embed(title="<:Feng:799865554512511027> Stats Geral | Dead by Daylight - Brasil", description="Estatísticas Gerais de **"+ str(steam_name) + "** no Dead by Daylight.", color=0x25FC91)
+    embed.add_field(name="<:Bloodpoint:799825470102700102>  Pontos de Sangue", value="`"+str(bloodpoints)+"`", inline=True)
+    embed.add_field(name="<:Tempodejogo:799865871921184768> Tempo de Jogo", value="`"+str(tempo)+"h`", inline=False)
+    embed.add_field(name="<:PartidasperfeitadeAssassinos:799867195148075058> Jogos Perfeitos de Assassino", value="`"+str(perfect_games_killer)+"`", inline=False)
+    embed.add_field(name="<:PartidasperfeitadeSobreviventes:799865871182069811> Jogos Perfeitos de Sobrevivente", value="`"+str(perfect_games_survivor)+"`", inline=False)
+    embed.set_thumbnail(url = avatar)
+    await context.message.channel.send(embed=embed)
+
 @client.command(name='assassino', pass_context = True, description="Mostra stats de assassino")
 async def killer(context, arg = None):
     assassino = client.get_channel(assasino_id)
@@ -347,8 +375,14 @@ async def survivor(context, arg = None):
 @client.command(name='geral', pass_context = True)
 async def geral(context, arg = None):
     geral = client.get_channel(geral_id)
-    if context.message.channel.id == geral_id:
-        r_int = randint(0,9999)
+
+    #checar if channel.id != geral_id: termina a função. É um approach melhor
+    if context.message.channel.id != geral_id:
+        await context.message.delete()
+        await context.message.channel.send(context.message.author.mention +", utilize este comando `-geral` apenas no chat " + geral.mention)
+
+    else:
+        rInt = randomNumbers(1,9999)
         discordid = context.message.author.id
         steamid = 0
         avatar = ""
@@ -356,6 +390,7 @@ async def geral(context, arg = None):
         steam_name = ""
         tempo = 0
 
+        #se chamou apenas -geral
         if arg == None:
             try:
                 steamid = getSteamID("user",discordid)
@@ -364,34 +399,30 @@ async def geral(context, arg = None):
                 steam_name = getSteamName(discordid)
             except:
                 await context.message.channel.send(context.message.author.mention +", você não está registrado no sistema, para se registrar utilize o comando -registro `link para seu perfil steam`")
-
+        
+        #se tem link no argumento (exemplo: -geral https://steamcommunity.com/id/*idExemplo* )
         else: 
             link = arg
-            if await valid_steam_profile(link,context,r_int) == False: 
+            if await valid_steam_profile(link,context,rInt) == False: 
                 return
             
-            response = requests.get(str(arg) + "?xml="+str(r_int), headers={'Cache-Control': 'no-cache'})
+            response = requests.get(str(arg) + "?xml="+str(rInt), headers={'Cache-Control': 'no-cache'})
             root = ET.fromstring(response.text)
             steam_name = root.find('steamID').text 
+
             for element in root.iter():
                 if element.tag == "steamID64":
                     steamid = element.text.strip()
-                    break
-            for element in root.iter():
+
                 if element.tag == "avatarFull":
                     avatar = element.text.strip()
-                    break   
-        xml = "/games/?xml="
-        response = requests.get(str(link) + xml +str(r_int), headers={'Cache-Control': 'no-cache'})
-        root2 = ET.fromstring(response.text)
+
+                if steamid and avatar: 
+                    break
+        
         try:
             #achei perfil da steam dele
-            for games in root2.findall('games'):
-                for game in games.findall('game'):
-                    #procura dbd nos jogos do perfil dele
-                    if(game.find('appID').text.find('381210') > -1):
-                        #encontrei dbd
-                        tempo = game.find('hoursOnRecord').text.replace(',','.')
+            tempo = get_play_time(link,rInt)
                         
         except:
             tempo = 0
@@ -399,39 +430,12 @@ async def geral(context, arg = None):
 
         #achei o DBD e agora pego stats do usuário com esta chamada baseado no steam ID dele
         response = requests.get("http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v1/?appid=381210&key=9CB3CFA671EB23758C136E8B5BC6BEA2&steamid=" + str(steamid))
+        
         if response.status_code == 200:
-            data = json.loads(response.content)
-            #print(json.dumps(data, indent = 4, sort_keys=True))
-            try:
-                perfect_games_killer = data["playerstats"]["stats"].get("DBD_SlasherMaxScoreByCategory", 0)
-                if(perfect_games_killer != 0):
-                    perfect_games_killer = int(perfect_games_killer['value'])
-                    perfect_games_killer = str('{0:,}'.format(perfect_games_killer)).replace(',','.')
-            except:
-                await context.message.channel.send("Erro na coleta dos dados (tem certeza que este perfil ja jogou DBD? 🤔)")
+            get_dbd_stats(response, context, steam_name, tempo, avatar)
             
-            perfect_games_survivor = data["playerstats"]["stats"].get("DBD_CamperMaxScoreByCategory", 0)
-            if(perfect_games_survivor != 0):
-                perfect_games_survivor = int(perfect_games_survivor['value'])
-                perfect_games_survivor = str('{0:,}'.format(perfect_games_survivor)).replace(',','.')
-
-            bloodpoints =  data["playerstats"]["stats"].get("DBD_BloodwebPoints", 0)
-            if(bloodpoints != 0):
-                bloodpoints = int(bloodpoints['value'])
-                bloodpoints = str('{0:,}'.format(bloodpoints)).replace(',','.')
-
-            embed=discord.Embed(title="<:Feng:799865554512511027> Stats Geral | Dead by Daylight - Brasil", description="Estatísticas Gerais de **"+ str(steam_name) + "** no Dead by Daylight.", color=0x25FC91)
-            embed.add_field(name="<:Bloodpoint:799825470102700102>  Pontos de Sangue", value="`"+str(bloodpoints)+"`", inline=True)
-            embed.add_field(name="<:Tempodejogo:799865871921184768> Tempo de Jogo", value="`"+str(tempo)+"h`", inline=False)
-            embed.add_field(name="<:PartidasperfeitadeAssassinos:799867195148075058> Jogos Perfeitos de Assassino", value="`"+str(perfect_games_killer)+"`", inline=False)
-            embed.add_field(name="<:PartidasperfeitadeSobreviventes:799865871182069811> Jogos Perfeitos de Sobrevivente", value="`"+str(perfect_games_survivor)+"`", inline=False)
-            embed.set_thumbnail(url = avatar)
-            await context.message.channel.send(embed=embed)
         elif response.status_code == 500:
             await context.message.channel.send(context.message.author.mention +", este perfil na steam está privado. Caso tenha mudado seu perfil para público espere no mínimo 5 minutos e tente de novamente.")
-    else:
-        await context.message.delete()
-        await context.message.channel.send(context.message.author.mention +", utilize este comando `-geral` apenas no chat " + geral.mention)
     
 def getUserDiscordID(context):
     return context.message.author.id
@@ -576,8 +580,6 @@ async def remove_role(roles, server, context ):
     member = server.get_member(context.message.author.id)
     if member:
         await member.remove_roles(*roles)
-    #else:
-    #    await context.message.channel.send(context.message.author.mention + ", você não é um membro da comunidade **Dead by Daylight Brasil**\n Link do convite <:RGB:800490716895510528> https://discord.gg/nDTVXbU")
     return
 
 
@@ -613,6 +615,7 @@ async def verify(context):
     else: 
         await context.message.channel.send(context.message.author.mention +", seu registro não foi encontrado, por favor se registre utlizando o comando -registro `link para sua conta steam`")
 
+
 @client.command(name='atualizarhoras', pass_context = True)
 async def update_play_time(context):
     rInt = randint(0,9999)
@@ -622,40 +625,10 @@ async def update_play_time(context):
         link = getLink("user",discordid)
     except:
         await context.message.channel.send(context.message.author.mention + ", seu registro não foi encontrado, por favor se registre utlizando o comando -registro `link para sua conta steam`")
-    response = requests.get(str(link) + "/games/?xml="+str(rInt), headers={'Cache-Control': 'no-cache'})
-    tempo = 0
-    #pega tempo de jogo
-    root2 = ET.fromstring(response.text)
-    for games in root2.findall('games'):
-        for game in games.findall('game'):
-            if(game.find('appID').text.find('381210') > -1):
-                #encontrei dbd
-                try:
-                    tempo = int(game.find('hoursOnRecord').text.replace(',',''))
-                except:
-                    tempo = 0
-    server = client.get_guild(id = 302440660680704001)
-    if tempo > 10: 
-        if   10   < tempo < 200: 
-            await remove_role(roles, server, context)
-            await give_role("Iniciante 10 - 200",server, context)
-        elif 200  < tempo < 500: 
-            await remove_role(roles, server, context)
-            await give_role("Aprendiz 200 - 500",server, context)
-        elif 500  < tempo < 1000:
-            await remove_role(roles, server, context)
-            await give_role("Veterano 500 - 1000",server, context)
-        elif 1000 < tempo < 3000:
-            await remove_role(roles, server, context)
-            await give_role("Old School 1000 - 3000",server, context)
-        elif 3000 < tempo < 5000:
-            await remove_role(roles, server, context)
-            await give_role("Pretty Good Job 3000 - 5000",server, context)
-        elif tempo > 5000:
-            await remove_role(roles, server, context)
-            await give_role("No Life 5000+",server, context)
-    else: 
-        await context.message.channel.send(context.message.author.mention + ", você não atingiu o tempo mínimo de 10 horas ou está com as horas privadas na steam")
+
+    tempo = get_play_time(link,rInt)
+
+    give_time_role(tempo,context)
 
 
 @client.command(name='userinfo', pass_context = True)
