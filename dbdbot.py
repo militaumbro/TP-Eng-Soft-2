@@ -1,3 +1,4 @@
+from turtle import update
 import discord
 from discord.ext import commands
 import discord
@@ -87,34 +88,66 @@ def rankImageLinks():
     rank_image_survivor_list[85]    =       ['https://i.imgur.com/hsCEyni.png']
 
 rankImageLinks()
-""" @client.command()
-async def help(ctx, args=None):
-    help_embed = discord.Embed(title="Nea Bot Help!")
-    command_names_list = [x.name for x in client.commands]
 
-    # If there are no arguments, just list the commands:
-    if not args:
-        help_embed.add_field(
-            name="List of supported commands:",
-            value="\n".join([str(i+1)+". "+x.name for i,x in enumerate(client.commands)]),
-            inline=False
-        )
+def get_steam_avatar_and_name(root):
+    steam_name = root.find('steamID').text
+    for element in root.iter():
+        if element.tag == "avatarFull":
+            avatar = element.text.strip()
+            break
+    return avatar,steam_name
 
-    # If the argument is a command, get the help text from that command:
-    elif args in command_names_list:
-        help_embed.add_field(
-            name=args,
-            value=client.get_command(args).help
-        )
+async def get_play_time(link,rInt):
 
-    # If someone is just trolling:
-    else:
-        help_embed.add_field(
-            name="Nope.",
-            value="Don't think I got that command, boss!"
-        )
-    await ctx.send(embed=help_embed)
- """
+    response = requests.get(str(link) + "/games/?xml="+str(rInt), headers={'Cache-Control': 'no-cache'})
+    
+    root2 = ET.fromstring(response.text)
+    for games in root2.findall('games'):
+        for game in games.findall('game'):
+            if(game.find('appID').text.find('381210') > -1):
+                #encontrei dbd
+                try:
+                    tempo = int(game.find('hoursOnRecord').text.replace(',',''))
+                except:
+                    tempo = 0
+    return tempo
+
+# atualiza o cargo do usuário no servidor
+async def updateRole(role,context):
+    
+    server = client.get_guild(id = 302440660680704001)
+    await remove_role(roles, server, context)
+    memb = await give_role(role ,server, context)
+    return memb
+
+# da o cargo de tempo no server do discord baseado no tempo de jogo do usuário
+async def give_time_role(tempo,context):
+    
+    if tempo > 10: 
+        if   10   < tempo < 200: 
+            memb = updateRole("Iniciante 10 - 200",context) 
+             
+        elif 200  < tempo < 500: 
+            memb = updateRole("Aprendiz 200 - 500",context)
+            
+        elif 500  < tempo < 1000:
+            memb = updateRole("Veterano 500 - 1000",context)
+            
+        elif 1000 < tempo < 3000:
+            memb = updateRole("Old School 1000 - 3000",context)
+            
+        elif 3000 < tempo < 5000:
+            memb = updateRole("Pretty Good Job 3000 - 5000",context)
+            
+        elif tempo > 5000:
+            memb = updateRole("No Life 5000+",context)
+            
+    else: 
+        await context.message.channel.send(context.message.author.mention + ", você não atingiu o tempo mínimo de 10 horas ou está com as horas privadas na steam, caso tenha deixado suas horas publicas, basta usar o comando -atualizarhoras")
+        #defualt
+        memb = updateRole("Iniciante 10 - 200",context)
+
+    return memb
 
 #retorna os valores nos formatos corretos de cada User Info do DBD
 def get_parameter(parameter):
@@ -131,6 +164,36 @@ def get_rank_image_killer(i):
 def get_rank_image_survivor(i):
     return rank_image_survivor_list[i]
 
+def randomNumbers(inf,sup):
+    value = randint(inf, sup)
+    return value
+
+async def register_user(steamid,discordid,code,link,context):
+
+    rInt = randomNumbers(1,9999)
+    response = requests.get(str(link) + "?xml="+str(rInt), headers={'Cache-Control': 'no-cache'})
+    root = ET.fromstring(response.text)
+    tempo = 0
+
+    if root.find('summary').text.find(str(code)) > -1:
+
+        avatar,steam_name = get_steam_avatar_and_name(root)
+        
+        tempo = get_play_time(link,rInt)
+        
+        isMember = give_time_role(tempo,context)
+
+        if not isMember:
+            return
+        db_entry = (steamid, discordid, steam_name, link, code, avatar)
+        Cursor.execute("DELETE FROM registro WHERE discordid=?",(discordid,))
+        Cursor.execute("INSERT INTO user VALUES (?,?,?,?,?,?)",db_entry)
+        conn.commit()
+        await context.message.channel.send("Registro feito com Sucesso")
+        return
+    else:
+        await context.message.channel.send( context.message.author.mention + ", nenhum código foi encontrado em seu Resumo do seu perfil da steam, coloque o código em seu resumo e digite novamente o comando `-verificar`")
+        return
 
 @client.command(name='assassino', pass_context = True, description="Mostra stats de assassino")
 async def killer(context, arg = None):
@@ -397,8 +460,8 @@ async def registro(context, args = None):
     if args[-1] != "/":
         args = args + "/"
     #codigo de verificação de identidade para a steam
-    verifying_code = randint(100000, 999999)
-    rInt = randint(0, 9999)
+    rInt = randomNumbers(1,9999)
+    code = randomNumbers(100000,999999)
     discordID = getUserDiscordID(context)
     Cursor.execute("SELECT discordid FROM user WHERE discordid = ?", (discordID,))
     result = Cursor.fetchone()
@@ -434,11 +497,11 @@ async def registro(context, args = None):
     root = ET.fromstring(response.text)
     steam_name = root.find('steamID').text
     link = args
-    #print("steamID: " + steamID + "\nDiscordID: " + str(discordID) + "\nCodigo de verificação: " + str(verifying_code))
+    #print("steamID: " + steamID + "\nDiscordID: " + str(discordID) + "\nCodigo de verificação: " + str(code))
     
 
     try:
-        db_entry_values = (steamID, discordID, verifying_code, link)
+        db_entry_values = (steamID, discordID, code, link)
         print(db_entry_values)
         Cursor.execute("REPLACE INTO registro VALUES (?,?,?,?)", db_entry_values)
         conn.commit()
@@ -458,7 +521,7 @@ async def registro(context, args = None):
 
     embed_inbox=discord.Embed(title="<a:Rainbow:800490718682153050> Registro", description="", color=0xF4F4F4)
     embed_inbox.add_field(name="**<:Register:800499677069312011> Ajuda**", value = "Tentando se registrar como `"+ steam_name +"`, **"+ context.message.author.display_name +"**? Deixa eu te ajudar então.\nPara conseguir acessar suas estatísticas e registrar sua conta no sistema, preciso que coloque o código de verificação no \"resumo\" da sua conta steam, utilize o código de verificação ao lado e execute o comando `-verificar`")
-    embed_inbox.add_field(name = "<:Steam:800509342406803486> Código", value = "Este é o seu código de verificação: `"+ str(verifying_code) +"`")
+    embed_inbox.add_field(name = "<:Steam:800509342406803486> Código", value = "Este é o seu código de verificação: `"+ str(code) +"`")
 
     try:
         await context.message.author.send(embed = embed_imagem1)
@@ -516,11 +579,13 @@ async def remove_role(roles, server, context ):
     #else:
     #    await context.message.channel.send(context.message.author.mention + ", você não é um membro da comunidade **Dead by Daylight Brasil**\n Link do convite <:RGB:800490716895510528> https://discord.gg/nDTVXbU")
     return
+
+
+
 @client.command(name='verificar', pass_context = True)
 async def verify(context):
     # pega usuario registrado na tabela de dados de registro temporario, e registra ele na tabela user após a verificação
-    rInt = randint(1, 9999)
-    code = randint(100000, 999999)
+    code = randomNumbers(100000,999999)
     discordid = context.message.author.id
     steamid = 0
     link = ""
@@ -531,89 +596,22 @@ async def verify(context):
     except:
         await context.message.channel.send(context.message.author.mention + ", registro não encontrado, por favor se registre utlizando o comando -registro `link para sua conta steam`")
         return
-    tempo = 0
+
     #se steamid nao é nulo entao registro existe na tabela como esperado
     if steamid is not None :
         #checar se discordID ja esta vinculado a uma conta na tabela user
         Cursor.execute("SELECT discordid FROM user WHERE discordid = ?", (discordid,))
         result = Cursor.fetchone()
+
         #se ja esta registrado negue o pedido e peça o desvinculo
         if result is not None:
             await context.message.channel.send(context.message.author.mention + ", você já está registrado em nosso sistema.")
-            return
-
         #se nao está registrado no user, registre
-        response = requests.get(str(link) + "?xml="+str(rInt), headers={'Cache-Control': 'no-cache'})
-        root = ET.fromstring(response.text)
-        if root.find('summary').text.find(str(code)) > -1:
-            #registrar na tabela de user
-            steam_name = root.find('steamID').text
-            for element in root.iter():
-                if element.tag == "avatarFull":
-                    avatar = element.text.strip()
-                    break
-            response = requests.get(str(link) + "/games/?xml="+str(rInt), headers={'Cache-Control': 'no-cache'})
-            #pega tempo de jogo
-            root2 = ET.fromstring(response.text)
-            for games in root2.findall('games'):
-                for game in games.findall('game'):
-                    if(game.find('appID').text.find('381210') > -1):
-                        #encontrei dbd
-                        try:
-                            tempo = int(game.find('hoursOnRecord').text.replace(',',''))
-                        except:
-                            tempo = 0
-            #definição de cargos baseado nas horas de jogo
-            server = client.get_guild(id = 302440660680704001)
-            if tempo > 10: 
-                if   10   < tempo < 200: 
-                    await remove_role(roles, server, context)
-                    memb = await give_role("Iniciante 10 - 200",server, context)
-                    if memb == False:
-                        return
-                elif 200  < tempo < 500: 
-                    await remove_role(roles, server, context)
-                    memb = await give_role("Aprendiz 200 - 500",server, context)
-                    if memb == False:
-                        return
-                elif 500  < tempo < 1000:
-                    await remove_role(roles, server, context)
-                    memb = await give_role("Veterano 500 - 1000",server, context)
-                    if memb == False:
-                        return
-                elif 1000 < tempo < 3000:
-                    await remove_role(roles, server, context)
-                    memb = await give_role("Old School 1000 - 3000",server, context)
-                    if memb == False:
-                        return
-                elif 3000 < tempo < 5000:
-                    await remove_role(roles, server, context)
-                    memb = await give_role("Pretty Good Job 3000 - 5000",server, context)
-                    if memb == False:
-                        return
-                elif tempo > 5000:
-                    await remove_role(roles, server, context)
-                    memb = await give_role("No Life 5000+",server, context)
-                    if memb == False:
-                        return
-            else: 
-                await context.message.channel.send(context.message.author.mention + ", você não atingiu o tempo mínimo de 10 horas ou está com as horas privadas na steam, caso tenha deixado suas horas publicas, basta usar o comando -atualizarhoras")
-                await remove_role(roles, server, context)
-                memb = await give_role("Iniciante 10 - 200",server, context)
-                if memb == False:
-                    return
-            db_entry = (steamid, discordid, steam_name, link, code, avatar)
-            Cursor.execute("DELETE FROM registro WHERE discordid=?",(discordid,))
-            Cursor.execute("INSERT INTO user VALUES (?,?,?,?,?,?)",db_entry)
-            conn.commit()
-            await context.message.channel.send("Registro feito com Sucesso")
-            return
-        else:
-            await context.message.channel.send( context.message.author.mention + ", nenhum código foi encontrado em seu Resumo do seu perfil da steam, coloque o código em seu resumo e digite novamente o comando `-verificar`")
-            return
+        else:    
+            register_user(steamid,discordid,code,link,context)
+        
     else: 
         await context.message.channel.send(context.message.author.mention +", seu registro não foi encontrado, por favor se registre utlizando o comando -registro `link para sua conta steam`")
-        return
 
 @client.command(name='atualizarhoras', pass_context = True)
 async def update_play_time(context):
