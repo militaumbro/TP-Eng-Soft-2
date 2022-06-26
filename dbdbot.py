@@ -29,6 +29,10 @@ geral_id        = 990696291489181810
 
 client = commands.Bot(command_prefix='-', intents=intents, help_command=None)
 
+from distest.patches import patch_target
+client = patch_target(client)
+
+
 server = client.get_guild(id = 990696290763546754)
 
 roles = ("Iniciante 10 - 200","Aprendiz 200 - 500","Veterano 500 - 1000","Old School 1000 - 3000","Pretty Good Job 3000 - 5000","No Life 5000+")
@@ -663,4 +667,4 @@ async def desvincular(context):
         await context.message.channel.send(context.message.author.mention +", você foi desvinculado com sucesso.")
         return
 
-client.run('OTkwNjk3MzQ5MTM3NDMyNjA3.GYYCZK.YGf0bROhsLlbX2jcTH86Qq1Uzl7R7fvfP05Z_I')
+client.run('OTkwNjk3MzQ5MTM3NDMyNjA3.GOujLF.F5ZrQsLcCO3ie9BSBkFhB--cxfkkL8VgRoFK3I')
