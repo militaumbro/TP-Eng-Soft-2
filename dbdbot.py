@@ -11,6 +11,7 @@ from random import seed
 from random import randint
 import sqlite3
 import os 
+
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 link_discord = "https://discord.gg/nDTVXbU"
@@ -68,7 +69,7 @@ def rankImageLinks():
     rank_image_killer_list[70:75] = (5) *       ['https://i.imgur.com/yvhexQ5.png']
     rank_image_killer_list[75:80] = (5) *       ['https://i.imgur.com/FNTfn0c.png']
     rank_image_killer_list[80:85] = (5) *       ['https://i.imgur.com/NRDikmz.png']
-    # rank_image_killer_list[85]    =             ['https://i.imgur.com/SrYQhJb.png']
+    rank_image_killer_list[85:86]    =   (2) *        ['https://i.imgur.com/SrYQhJb.png']
 
     rank_image_survivor_list[0:3] = (3 - 0) * ['https://i.imgur.com/3vH3UTW.png']
     rank_image_survivor_list[3:6] = (6 - 3) * ['https://i.imgur.com/1MalZLY.png']
@@ -89,11 +90,12 @@ def rankImageLinks():
     rank_image_survivor_list[70:75] = (5) *       ['https://i.imgur.com/aQo9pSU.png']
     rank_image_survivor_list[75:80] = (5) *       ['https://i.imgur.com/rqoaqWq.png']
     rank_image_survivor_list[80:85] = (5) *       ['https://i.imgur.com/2jV9Soo.png']
-    # rank_image_survivor_list[85]    =       ['https://i.imgur.com/hsCEyni.png']
+    rank_image_survivor_list[85:86]    = (2) *      ['https://i.imgur.com/hsCEyni.png']
 
 rankImageLinks()
 
 def get_steam_avatar_and_name(root):
+    
     steam_name = root.find('steamID').text
     for element in root.iter():
         if element.tag == "avatarFull":
@@ -445,6 +447,7 @@ def getUserDiscordID(context):
     return context.message.author.id
 
 
+
 async def valid_steam_profile(link, context, rInt):
     if link.find("steamcommunity.com") == -1:
         await context.message.channel.send(context.message.author.mention + ", por favor envie um url de perfil da steam Válido.")
@@ -503,6 +506,7 @@ async def registro(context, args = None):
             return
     response = requests.get(str(args) + "?xml="+str(rInt), headers={'Cache-Control': 'no-cache'})
     root = ET.fromstring(response.text)
+    
     steam_name = root.find('steamID').text
     link = args
     #print("steamID: " + steamID + "\nDiscordID: " + str(discordID) + "\nCodigo de verificação: " + str(code))
@@ -667,4 +671,4 @@ async def desvincular(context):
         await context.message.channel.send(context.message.author.mention +", você foi desvinculado com sucesso.")
         return
 
-client.run('OTkwNjk3MzQ5MTM3NDMyNjA3.GOujLF.F5ZrQsLcCO3ie9BSBkFhB--cxfkkL8VgRoFK3I')
+client.run('OTkwNjk3MzQ5MTM3NDMyNjA3.Gp0sC0.ENhUajHsA_UEka5DQAqfQuYipRNF08RQUmC0iY')
