@@ -23,13 +23,13 @@ conn = sqlite3.connect(dir_path + "/DB_dbd_Bot.db")
 Cursor = conn.cursor()
 
 #ids dos canais
-assasino_id     = 445248966980927488
-sobrevivente_id = 445248966980927488
-geral_id        = 445248966980927488
+assasino_id     = 990696291489181810
+sobrevivente_id = 990696291489181810
+geral_id        = 990696291489181810
 
 client = commands.Bot(command_prefix='-', intents=intents, help_command=None)
 
-server = client.get_guild(id = 302440660680704001)
+server = client.get_guild(id = 990696290763546754)
 
 roles = ("Iniciante 10 - 200","Aprendiz 200 - 500","Veterano 500 - 1000","Old School 1000 - 3000","Pretty Good Job 3000 - 5000","No Life 5000+")
 
@@ -64,7 +64,7 @@ def rankImageLinks():
     rank_image_killer_list[70:75] = (5) *       ['https://i.imgur.com/yvhexQ5.png']
     rank_image_killer_list[75:80] = (5) *       ['https://i.imgur.com/FNTfn0c.png']
     rank_image_killer_list[80:85] = (5) *       ['https://i.imgur.com/NRDikmz.png']
-    rank_image_killer_list[85]    =             ['https://i.imgur.com/SrYQhJb.png']
+    # rank_image_killer_list[85]    =             ['https://i.imgur.com/SrYQhJb.png']
 
     rank_image_survivor_list[0:3] = (3 - 0) * ['https://i.imgur.com/3vH3UTW.png']
     rank_image_survivor_list[3:6] = (6 - 3) * ['https://i.imgur.com/1MalZLY.png']
@@ -85,7 +85,7 @@ def rankImageLinks():
     rank_image_survivor_list[70:75] = (5) *       ['https://i.imgur.com/aQo9pSU.png']
     rank_image_survivor_list[75:80] = (5) *       ['https://i.imgur.com/rqoaqWq.png']
     rank_image_survivor_list[80:85] = (5) *       ['https://i.imgur.com/2jV9Soo.png']
-    rank_image_survivor_list[85]    =       ['https://i.imgur.com/hsCEyni.png']
+    # rank_image_survivor_list[85]    =       ['https://i.imgur.com/hsCEyni.png']
 
 rankImageLinks()
 
@@ -663,4 +663,4 @@ async def desvincular(context):
         await context.message.channel.send(context.message.author.mention +", você foi desvinculado com sucesso.")
         return
 
-client.run('Nzk5MzU0MzIwODA5NzU0NjY0.YACWuQ.jBAquoOOSrDV6cVrvxCQGdT3SU8')
+client.run('OTkwNjk3MzQ5MTM3NDMyNjA3.GYYCZK.YGf0bROhsLlbX2jcTH86Qq1Uzl7R7fvfP05Z_I')
