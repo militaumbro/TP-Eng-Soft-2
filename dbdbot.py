@@ -681,4 +681,8 @@ async def desvincular(context):
         await context.message.channel.send(context.message.author.mention +", você foi desvinculado com sucesso.")
         return
 
-client.run('OTkwNjk3MzQ5MTM3NDMyNjA3.Gp0sC0.ENhUajHsA_UEka5DQAqfQuYipRNF08RQUmC0iY')
+
+
+if __name__ == "__main__":     
+    client.run('OTkwNjk3MzQ5MTM3NDMyNjA3.Gp0sC0.ENhUajHsA_UEka5DQAqfQuYipRNF08RQUmC0iY')
+
