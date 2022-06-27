@@ -6,21 +6,12 @@ on:
     branches: [ "master" ]
   workflow_dispatch:
   
-jobs:
-  Test-Ubuntu:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: python unit_test.py
-
-  Test-MacOS:
-    runs-on: macOS-latest
-    steps:
-      - uses: actions/checkout@v3
-      - run: python unit_test.py
-      
+jobs: 
   Test-Windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
+      - run: pip install discord
+      - run: pip install requests
+      - run: pip install pytest
       - run: python unit_test.py
