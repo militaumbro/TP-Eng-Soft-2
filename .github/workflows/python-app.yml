@@ -16,4 +16,4 @@ jobs:
       - run: pip install pytest
       - run: pip install distest
       - run: python unit_test.py
-      - run: python dbdbot_test.py
+      - run: python dbdbot_test.py 990697349137432607 -c 990696291489181810 OTkwNzA2MjYyMTUwODkzNTY4.G3SbLh.Pm0MYgz0FWrSHJ0fGG4vJxEqNwmARwUaJtBbJk -r all
