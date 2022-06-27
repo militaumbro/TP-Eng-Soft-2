@@ -11,6 +11,7 @@ from random import seed
 from random import randint
 import sqlite3
 import os 
+from distest.patches import patch_target
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -30,7 +31,7 @@ geral_id        = 990696291489181810
 
 client = commands.Bot(command_prefix='-', intents=intents, help_command=None)
 
-from distest.patches import patch_target
+
 client = patch_target(client)
 
 
