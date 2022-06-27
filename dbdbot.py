@@ -547,31 +547,40 @@ async def registro(context, args = None):
     await context.message.channel.send(context.message.author.mention +", todos os dados para efetuar o seu registro foram enviados para o seu privado.")
     
 
-def getSteamID(table, discordid):
-    Cursor.execute("SELECT steamid FROM "+ str(table) +" WHERE discordid = ?",(discordid,))
-    return Cursor.fetchone()[0]
+def getKillerChannelId():
+    return assasino_id;
 
-def getSteamName(discordid):
-    Cursor.execute("SELECT steam_name FROM user WHERE discordid = ?",(discordid,))
-    return Cursor.fetchone()[0]
+def getSurvivorChannelId():
+    return sobrevivente_id;
 
-def getCode(table, discordid):
-    Cursor.execute("SELECT codigo FROM "+ str(table) +" WHERE discordid = ?",(discordid,))
-    return Cursor.fetchone()[0]
+def getGeralChannelId():
+    return geral_id;
 
-def getLink(table, discordid):
-    Cursor.execute("SELECT link FROM "+ str(table) +" WHERE discordid = ?",(discordid,))
-    return Cursor.fetchone()[0]
+def getSteamID(table, discordid, cursor=Cursor):
+    cursor.execute("SELECT steamid FROM "+ str(table) +" WHERE discordid = ?",(discordid,))
+    return cursor.fetchone()[0]
 
-def id_exists(discordid):
-    Cursor.execute("SELECT discordid FROM user WHERE discordid = ?",(discordid,))
-    if Cursor.fetchone() == None:
+def getSteamName(discordid, cursor=Cursor):
+    cursor.execute("SELECT steam_name FROM user WHERE discordid = ?",(discordid,))
+    return cursor.fetchone()[0]
+
+def getCode(table, discordid, cursor=Cursor):
+    cursor.execute("SELECT codigo FROM "+ str(table) +" WHERE discordid = ?",(discordid,))
+    return cursor.fetchone()[0]
+
+def getLink(table, discordid, cursor=Cursor):
+    cursor.execute("SELECT link FROM "+ str(table) +" WHERE discordid = ?",(discordid,))
+    return cursor.fetchone()[0]
+
+def id_exists(discordid, cursor=Cursor):
+    cursor.execute("SELECT discordid FROM user WHERE discordid = ?",(discordid,))
+    if cursor.fetchone() == None:
         return False
     else:
         return True
-def get_avatar(discordid):
-    Cursor.execute("SELECT avatar FROM user WHERE discordid = ?",(discordid,))
-    return Cursor.fetchone()[0]
+def get_avatar(discordid, cursor=Cursor):
+    cursor.execute("SELECT avatar FROM user WHERE discordid = ?",(discordid,))
+    return cursor.fetchone()[0]
 
 async def give_role(role_name, server, context ):
     role = discord.utils.get(server.roles, name = role_name)
